@@ -9,7 +9,7 @@ This application will help people discover if they are able to afford a car they
 
 ## Dependencies
 
-None ar this time.
+None at this time.
 
 ## Setup Instructions
 

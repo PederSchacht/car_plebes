@@ -7,6 +7,8 @@ require 'environment'
 Environment.environment = ENV["ENVIRONMENT"] || "production"
 $stderr = $stdout
 
+require 'account'
+
 def menu
 <<EOS
 What do you want to do?
@@ -19,7 +21,7 @@ end
 def set_monthly_income_for(account)
   puts "What is the new monthly income for #{account.name}?"
   new_monthly_income = gets
-  return unless new_nonthly_income
+  return unless new_monthly_income
   new_monthly_income.chomp!
   account.update(new_monthly_income)
 end
@@ -29,7 +31,7 @@ def add_account
   account_name = gets
   return unless account_name
   account_name.chomp!
-  account = Account.new(acount_name)
+  account = Account.new(account_name)
   if account.save
     puts "#{account.name} has been added."
     set_monthly_income_for(account)

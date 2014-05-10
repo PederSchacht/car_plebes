@@ -3,6 +3,7 @@ $LOAD_PATH << "lib"
 $LOAD_PATH << "models"
 
 require 'environment'
+require 'expense'
 require 'account'
 
 Environment.environment = "test"
@@ -22,6 +23,7 @@ end
 RSpec.configure do |config|
   config.after(:each) do
     Environment.database_connection.execute("DELETE from accounts;")
+    Environment.database_connection.execute("DELETE from expenses;")
   end
 end
 
