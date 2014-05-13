@@ -69,4 +69,3 @@ describe "Adding an account" do
     end
   end
 end
-

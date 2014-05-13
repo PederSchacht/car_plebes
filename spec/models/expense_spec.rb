@@ -84,9 +84,9 @@ describe Expense do
   end
 
   context "#new" do
-    let(:expense){ Expense.new("Bob") }
+    let(:expense){ Expense.new("Rent") }
     it "should store the name" do
-      expense.name.should == "Bob"
+      expense.name.should == "Rent"
     end
   end
 
@@ -127,12 +127,12 @@ describe Expense do
       let(:expense){ Expense.new("123") }
       it "should return true" do
         expense.valid?.should be_false
-        expense.name = "Bob"
+        expense.name = "Rent"
         expense.valid?.should be_true
       end
     end
     context "with a unique name" do
-      let(:expense){ Expense.new("Joe") }
+      let(:expense){ Expense.new("Student Loans") }
       it "should return true" do
         expense.valid?.should be_true
       end
@@ -148,7 +148,7 @@ describe Expense do
       end
     end
     context "with a duplicate name" do
-      let(:name){ "Susan" }
+      let(:name){ "Groceries" }
       let(:expense){ Expense.new(name) }
       before do
         Expense.new(name).save

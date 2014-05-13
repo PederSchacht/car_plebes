@@ -13,6 +13,7 @@ class Database < SQLite3::Database
   def create_tables
     self.execute("CREATE TABLE accounts (id INTEGER PRIMARY KEY AUTOINCREMENT, name varcar(50))")
     self.execute("CREATE TABLE expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, name varcar(50))")
+    self.execute("CREATE TABLE cars (id INTEGER PRIMARY KEY AUTOINCREMENT, name varcar(50))")
   end
 
   def execute(statement, bind_vars = [])
