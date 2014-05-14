@@ -20,9 +20,9 @@ describe Expense do
       it "should return all of the expenses" do
         expense_attrs = Expense.all.map{ |expense| [expense.name,expense.cost,expense.account_id,expense.id] }
         expense_attrs.should == [["Foo", 25, @account_id, foo.id],
-                                ["Bar", 30, @account_id, bar.id],
-                                ["Baz", 40, @account_id, baz.id],
-                                ["Grille", 55, @account_id, grille.id]]
+                                 ["Bar", 30, @account_id, bar.id],
+                                 ["Baz", 40, @account_id, baz.id],
+                                 ["Grille", 55, @account_id, grille.id]]
       end
     end
   end

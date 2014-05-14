@@ -204,7 +204,9 @@ def can_i_car
   else
     puts "What does a #{car_name} cost?"
     car_cost = gets
-    new_car = Car.new(car_name)
+    return unless car_cost
+    car_cost.chomp!
+    new_car = Car.new(car_name, car_cost)
     if new_car.save
       can_i_get(car_name)
     else

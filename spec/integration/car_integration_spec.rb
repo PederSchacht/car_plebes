@@ -2,7 +2,7 @@ require_relative '../spec_helper'
 
 describe "Adding a car" do
   before do
-    car = Car.new("Ferrari")
+    car = Car.new("Ferrari", 33)
     car.save
   end
   context "adding a unique car" do

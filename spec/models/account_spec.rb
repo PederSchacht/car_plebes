@@ -15,9 +15,9 @@ describe Account do
       it "should return all of the accounts" do
         account_attrs = Account.all.map{ |account| [account.name,account.income,account.id] }
         account_attrs.should == [["Foo", 25, foo.id],
-                                ["Bar", 30, bar.id],
-                                ["Baz", 20, baz.id],
-                                ["Grille", 40, grille.id]]
+                                 ["Bar", 30, bar.id],
+                                 ["Baz", 20, baz.id],
+                                 ["Grille", 40, grille.id]]
       end
     end
   end

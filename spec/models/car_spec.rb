@@ -8,16 +8,16 @@ describe Car do
       end
     end
     context "with multiple cars in the database" do
-      let!(:foo){ Car.create("Foo") }
-      let!(:bar){ Car.create("Bar") }
-      let!(:baz){ Car.create("Baz") }
-      let!(:grille){ Car.create("Grille") }
+      let!(:foo){ Car.create("Foo", 25) }
+      let!(:bar){ Car.create("Bar", 30) }
+      let!(:baz){ Car.create("Baz", 20) }
+      let!(:grille){ Car.create("Grille", 40) }
       it "should return all of the cars" do
-        car_attrs = Car.all.map{ |car| [car.name,car.id] }
-        car_attrs.should == [["Foo", foo.id],
-                                ["Bar", bar.id],
-                                ["Baz", baz.id],
-                                ["Grille", grille.id]]
+        car_attrs = Car.all.map{ |car| [car.name,car.price,car.id] }
+        car_attrs.should == [["Foo", 25, foo.id],
+                             ["Bar", 30, bar.id],
+                             ["Baz", 20, baz.id],
+                             ["Grille", 40, grille.id]]
       end
     end
   end
@@ -30,10 +30,10 @@ describe Car do
     end
     context "with multiple cars in the database" do
       before do
-        Car.new("Foo").save
-        Car.new("Bar").save
-        Car.new("Baz").save
-        Car.new("Grille").save
+        Car.new("Foo", 25).save
+        Car.new("Bar", 30).save
+        Car.new("Baz", 20).save
+        Car.new("Grille", 40).save
       end
       it "should return the correct count" do
         Car.count.should == 4
@@ -48,18 +48,21 @@ describe Car do
       end
     end
     context "with car by that name in the database" do
-      let(:foo){ Car.create("Foo") }
+      let(:foo){ Car.create("Foo", 25) }
       before do
         foo
-        Car.new("Bar").save
-        Car.new("Baz").save
-        Car.new("Grille").save
+        Car.new("Bar", 30).save
+        Car.new("Baz", 20).save
+        Car.new("Grille", 40).save
       end
       it "should return the car with that name" do
         Car.find_by_name("Foo").id.should == foo.id
       end
       it "should return the car with that name" do
         Car.find_by_name("Foo").name.should == foo.name
+      end
+      it "should return the car with that price" do
+        Car.find_by_name("Foo").price.should == foo.price
       end
     end
   end
@@ -72,10 +75,10 @@ describe Car do
     end
     context "with multiple cars in the database" do
       before do
-        Car.new("Foo").save
-        Car.new("Bar").save
-        Car.new("Baz").save
-        Car.new("Grille").save
+        Car.new("Foo", 25).save
+        Car.new("Bar", 30).save
+        Car.new("Baz", 20).save
+        Car.new("Grille", 40).save
       end
       it "should return the last one inserted" do
         Car.last.name.should == "Grille"
@@ -84,15 +87,18 @@ describe Car do
   end
 
   context "#new" do
-    let(:car){ Car.new("Ferrari") }
+    let(:car){ Car.new("Ferrari", 15) }
     it "should store the name" do
       car.name.should == "Ferrari"
+    end
+    it "should store the price" do
+      car.price.should == 15
     end
   end
 
   context "#save" do
     let(:result){ Environment.database_connection.execute("Select * from cars") }
-    let(:car){ Car.new("foo") }
+    let(:car){ Car.new("foo", 25) }
     context "with a valid car" do
       before do
         car.stub(:valid?){ true }
@@ -109,6 +115,10 @@ describe Car do
         car.save
         car.id.should == result[0]["id"]
       end
+      it "should record the new price" do
+        car.save
+        car.price.should == result[0]["price"]
+      end
     end
     context "with an invalid car" do
       before do
@@ -124,21 +134,22 @@ describe Car do
   context "#valid?" do
     let(:result){ Environment.database_connection.execute("Select name from cars") }
     context "after fixing the errors" do
-      let(:car){ Car.new("123") }
+      let(:car){ Car.new("123", 55) }
       it "should return true" do
         car.valid?.should be_false
         car.name = "Ferrari"
+        car.price = 55
         car.valid?.should be_true
       end
     end
     context "with a unique name" do
-      let(:car){ Car.new("Audi") }
+      let(:car){ Car.new("Audi", 35) }
       it "should return true" do
         car.valid?.should be_true
       end
     end
     context "with a invalid name" do
-      let(:car){ Car.new("420") }
+      let(:car){ Car.new("420", 18) }
       it "should return false" do
         car.valid?.should be_false
       end
@@ -149,9 +160,9 @@ describe Car do
     end
     context "with a duplicate name" do
       let(:name){ "Porsche" }
-      let(:car){ Car.new(name) }
+      let(:car){ Car.new(name, 38) }
       before do
-        Car.new(name).save
+        Car.new(name, 38).save
       end
       it "should return false" do
         car.valid?.should be_false

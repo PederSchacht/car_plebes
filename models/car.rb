@@ -1,9 +1,10 @@
 class Car
   attr_reader :errors, :id
-  attr_accessor :name
+  attr_accessor :name, :price
 
-  def initialize(name)
+  def initialize(name, price)
     @name = name
+    @price = price
   end
 
   def self.all
@@ -17,8 +18,8 @@ class Car
     result[0][0]
   end
 
-  def self.create(name)
-    car = Car.new(name)
+  def self.create(name, price)
+    car = Car.new(name, price)
     car.save
     car
   end
@@ -35,8 +36,8 @@ class Car
 
   def save
     if self.valid?
-      statement = "Insert into cars (name) values (?);"
-      Environment.database_connection.execute(statement, name)
+      statement = "Insert into cars (name, price) values (?,?);"
+      Environment.database_connection.execute(statement, [name, price])
       @id = Environment.database_connection.execute("Select last_insert_rowid();")[0][0]
       true
     else
@@ -61,7 +62,7 @@ class Car
     rows = Environment.database_connection.execute(statement, bind_vars)
     results = []
     rows.each do |row|
-      car = Car.new(row["name"])
+      car = Car.new(row["name"], row["price"])
       car.instance_variable_set(:@id, row["id"])
       results << car
     end
