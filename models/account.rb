@@ -56,6 +56,35 @@ class Account
     @errors.empty?
   end
 
+  def self.display_account(account)
+    puts ""
+    puts "###################################"
+    puts "#{account.name}'s account".center(35).rstrip
+    puts "___________________________________"
+    puts "Monthly Income   : #{account.income}"
+    puts ""
+    puts "Monthly Expenses :"
+    avaliable_funds = account.income
+    statement = "Select expenses.name, expenses.cost from expenses where expenses.account_id = #{account.id};"
+    Environment.database_connection.execute(statement) do |row|
+    puts "                   #{row["cost"]} #{row["name"]}"
+    avaliable_funds -= row["cost"]
+    end
+    puts ""
+    puts "Avaliable Funds  : #{avaliable_funds}"
+    puts "###################################"
+    puts ""
+  end
+
+  def self.get_avaliable_funds(account)
+    avaliable_funds = account.income
+    statement = "Select expenses.name, expenses.cost from expenses where expenses.account_id = #{account.id};"
+    Environment.database_connection.execute(statement) do |row|
+    avaliable_funds -= row["cost"]
+    end
+    avaliable_funds
+  end
+
   private
 
   def self.execute_and_instantiate(statement, bind_vars = [])

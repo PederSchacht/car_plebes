@@ -38,7 +38,7 @@ EOS
   context "the user selects 4" do
     let(:shell_output){ run_car_plebes_with_input("4") }
     it "should print the next menu" do
-      shell_output.should include("What car do you want to buy?")
+      shell_output.should include("Who wants to know?")
     end
   end
   context "if the user types in the wrong input" do
@@ -62,13 +62,13 @@ EOS
   context "if the user types in incorrect input, it should allow correct input" do
     let(:shell_output){ run_car_plebes_with_input("6", "4") }
     it "should include the appropriate menu" do
-      shell_output.should include("What car do you want to buy?")
+      shell_output.should include("Who wants to know?")
     end
   end
   context "if the user types in incorrect input multiple times, it should allow correct input" do
     let(:shell_output){ run_car_plebes_with_input("6","", "4") }
     it "should include the appropriate menu" do
-      shell_output.should include("What car do you want to buy?")
+      shell_output.should include("Who wants to know?")
     end
   end
 end

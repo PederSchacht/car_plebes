@@ -182,33 +182,40 @@ def view_account
   account_name.chomp!
   account = Account.find_by_name(account_name)
   if account
-    display_account(account)
+    Account.display_account(account)
   else
     puts "Account '#{account.name}' does not exit. Please try again."
     view_account
   end
 end
 
-def display_account(account)
-  puts "displaying #{account.name}'s account"
-end
-
 def can_i_car
+  puts "Who wants to know?"
+  account_name = gets
+  return unless account_name
+  account_name.chomp!
+  account = Account.find_by_name(account_name)
+  unless account
+    puts "Account '#{account.name}' does not exit. Please try again."
+    can_i_car
+  end
+  avaliable_funds = Account.get_avaliable_funds(account)
   puts "What car do you want to buy?"
   car_name = gets
   return unless car_name
   car_name.chomp!
   car = Car.find_by_name(car_name)
   if car
-    can_i_get(car_name)
+    price = car.price
+    can_i_get(car_name, price, avaliable_funds)
   else
     puts "What does a #{car_name} cost?"
-    car_cost = gets
-    return unless car_cost
-    car_cost.chomp!
-    new_car = Car.new(car_name, car_cost)
+    car_price = gets
+    return unless car_price
+    car_price.chomp!
+    new_car = Car.new(car_name, car_price)
     if new_car.save
-      can_i_get(car_name)
+      can_i_get(car_name, new_car_price, avaliable_funds)
     else
       puts new_car.errors
       can_i_car
@@ -216,6 +223,28 @@ def can_i_car
   end
 end
 
-def can_i_get(car_name)
-  puts "You can afford #{car_name} congratulations!"
+def can_it_be_afforded(price, avaliable_funds)
+  if price <= (avaliable_funds * 48)
+    true
+  else
+    false
+  end
+end
+
+def can_i_get(car_name, new_car_price, avaliable_funds)
+  price = new_car_price
+  result = can_it_be_afforded(price, avaliable_funds)
+  if result == true
+    if car_name.downcase.start_with?("a", "e", "i","o", "u")
+      puts "You can afford an #{car_name} congratulations!"
+    else
+      puts "You can afford a #{car_name} congratulations!"
+    end
+  else
+    if car_name.downcase.start_with?("a", "e", "i", "o", "u")
+      puts "Sorry looks like you need more disposable income to afford an #{car_name}"
+    else
+      puts "Sorry looks like you need more disposable income to afford a #{car_name}. "
+    end
+  end
 end
