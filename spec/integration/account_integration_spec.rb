@@ -2,11 +2,11 @@ require_relative '../spec_helper'
 
 describe "Adding an account" do
   before do
-    account = Account.new("Jane")
+    account = Account.new("Jane", 33)
     account.save
   end
   context "adding a unique account" do
-    let!(:output){ run_car_plebes_with_input("1", "Joe") }
+    let!(:output){ run_car_plebes_with_input("1", "Joe", "22") }
     it "should print a confirmation message" do
       output.should include("Joe has been added.")
       Account.count.should == 2
@@ -19,7 +19,7 @@ describe "Adding an account" do
     end
   end
   context "adding a duplicate account" do
-    let(:output){ run_car_plebes_with_input("1", "Jane") }
+    let(:output){ run_car_plebes_with_input("1", "Jane", "33") }
     it "should print an error message" do
       output.should include("Jane already exists.")
     end
@@ -31,7 +31,7 @@ describe "Adding an account" do
       Account.count.should == 1
     end
     context "and trying again" do
-      let!(:output){ run_car_plebes_with_input("1", "Jane", "Sandy") }
+      let!(:output){ run_car_plebes_with_input("1", "Jane", "33", "Sandy", "44") }
       it "should save a unique item" do
         Account.last.name.should == "Sandy"
       end
@@ -42,8 +42,8 @@ describe "Adding an account" do
   end
   context "entering an invalid looking account name" do
     context "with SQL injection" do
-      let(:input){ "phalangectomy'), ('425" }
-      let!(:output){ run_car_plebes_with_input("1", input) }
+      let(:input){ "fireman'), ('425" }
+      let!(:output){ run_car_plebes_with_input("1", input, "21") }
       it "should create the account without evaluating the SQL" do
         Account.last.name.should == input
       end
@@ -55,7 +55,7 @@ describe "Adding an account" do
       end
     end
     context "without alphabet characters" do
-      let(:output){ run_car_plebes_with_input("1", "4*25") }
+      let(:output){ run_car_plebes_with_input("1", "4*25", "15") }
       it "should not save the account" do
         Account.count.should == 1
       end

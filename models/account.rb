@@ -1,9 +1,10 @@
 class Account
   attr_reader :errors, :id
-  attr_accessor :name
+  attr_accessor :name, :income
 
-  def initialize(name)
+  def initialize(name, income)
     @name = name
+    @income = income
   end
 
   def self.all
@@ -17,8 +18,8 @@ class Account
     result[0][0]
   end
 
-  def self.create(name)
-    account = Account.new(name)
+  def self.create(name, income)
+    account = Account.new(name, income)
     account.save
     account
   end
@@ -35,9 +36,9 @@ class Account
 
   def save
     if self.valid?
-      statement = "Insert into accounts (name) values (?);"
-      Environment.database_connection.execute(statement, name)
-      @id = Environment.database_connection.execute("Select last_insert_rowid();")[0][0]
+      statement = "Insert into accounts (name, income) values (?,?);"
+      Environment.database_connection.execute(statement, [name, income])
+      @id = Environment.database_connection.execute("SELECT last_insert_rowid();")[0][0]
       true
     else
       false
@@ -47,7 +48,7 @@ class Account
   def valid?
     @errors = []
     if !name.match /[a-zA-Z]/
-      errors << "'#{self.name}' is not a valid account name, as it does not include any letters."
+      @errors << "'#{self.name}' is not a valid account name, as it does not include any letters."
     end
     if Account.find_by_name(self.name)
       @errors << "#{self.name} already exists."
@@ -61,7 +62,7 @@ class Account
     rows = Environment.database_connection.execute(statement, bind_vars)
     results = []
     rows.each do |row|
-      account = Account.new(row["name"])
+      account = Account.new(row["name"], row["income"])
       account.instance_variable_set(:@id, row["id"])
       results << account
     end

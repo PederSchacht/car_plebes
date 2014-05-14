@@ -1,6 +1,11 @@
 require_relative '../spec_helper'
 
 describe Expense do
+  before do
+    account = Account.new("Sam", 25)
+    account.save
+    @account_id = account.id
+  end
   context ".all" do
     context "with no expenses in the database" do
       it "should return an empty array" do
@@ -8,16 +13,16 @@ describe Expense do
       end
     end
     context "with multiple expenses in the database" do
-      let!(:foo){ Expense.create("Foo") }
-      let!(:bar){ Expense.create("Bar") }
-      let!(:baz){ Expense.create("Baz") }
-      let!(:grille){ Expense.create("Grille") }
-      it "should return all of the Expenses" do
-        expense_attrs = Expense.all.map{ |expense| [expense.name,expense.id] }
-        expense_attrs.should == [["Foo", foo.id],
-                                ["Bar", bar.id],
-                                ["Baz", baz.id],
-                                ["Grille", grille.id]]
+      let!(:foo){ Expense.create("Foo", 25, @account_id) }
+      let!(:bar){ Expense.create("Bar", 30, @account_id) }
+      let!(:baz){ Expense.create("Baz", 40, @account_id) }
+      let!(:grille){ Expense.create("Grille", 55, @account_id) }
+      it "should return all of the expenses" do
+        expense_attrs = Expense.all.map{ |expense| [expense.name,expense.cost,expense.account_id,expense.id] }
+        expense_attrs.should == [["Foo", 25, @account_id, foo.id],
+                                ["Bar", 30, @account_id, bar.id],
+                                ["Baz", 40, @account_id, baz.id],
+                                ["Grille", 55, @account_id, grille.id]]
       end
     end
   end
@@ -30,10 +35,10 @@ describe Expense do
     end
     context "with multiple expenses in the database" do
       before do
-        Expense.new("Foo").save
-        Expense.new("Bar").save
-        Expense.new("Baz").save
-        Expense.new("Grille").save
+        Expense.new("Foo", 25, @account_id).save
+        Expense.new("Bar", 30, @account_id).save
+        Expense.new("Baz", 40, @account_id).save
+        Expense.new("Grille", 55, @account_id).save
       end
       it "should return the correct count" do
         Expense.count.should == 4
@@ -44,22 +49,22 @@ describe Expense do
   context ".find_by_name" do
     context "with no expenses in the database" do
       it "should return 0" do
-        Expense.find_by_name("Foo").should be_nil
+        Expense.find_by_name("Foo", @account_id).should be_nil
       end
     end
     context "with expense by that name in the database" do
-      let(:foo){ Expense.create("Foo") }
+      let(:foo){ Expense.create("Foo", 25, @account_id) }
       before do
         foo
-        Expense.new("Bar").save
-        Expense.new("Baz").save
-        Expense.new("Grille").save
+        Expense.new("Bar", 30, @account_id).save
+        Expense.new("Baz", 40, @account_id).save
+        Expense.new("Grille", 55, @account_id).save
       end
       it "should return the expense with that name" do
-        Expense.find_by_name("Foo").id.should == foo.id
+        Expense.find_by_name("Foo", @account_id).id.should == foo.id
       end
       it "should return the expense with that name" do
-        Expense.find_by_name("Foo").name.should == foo.name
+        Expense.find_by_name("Foo", @account_id).name.should == foo.name
       end
     end
   end
@@ -72,10 +77,10 @@ describe Expense do
     end
     context "with multiple expenses in the database" do
       before do
-        Expense.new("Foo").save
-        Expense.new("Bar").save
-        Expense.new("Baz").save
-        Expense.new("Grille").save
+        Expense.new("Foo", 25, @account_id).save
+        Expense.new("Bar", 30, @account_id).save
+        Expense.new("Baz", 40, @account_id).save
+        Expense.new("Grille", 55, @account_id).save
       end
       it "should return the last one inserted" do
         Expense.last.name.should == "Grille"
@@ -84,7 +89,7 @@ describe Expense do
   end
 
   context "#new" do
-    let(:expense){ Expense.new("Rent") }
+    let(:expense){ Expense.new("Rent", 50, @account_id) }
     it "should store the name" do
       expense.name.should == "Rent"
     end
@@ -92,7 +97,7 @@ describe Expense do
 
   context "#save" do
     let(:result){ Environment.database_connection.execute("Select * from expenses") }
-    let(:expense){ Expense.new("foo") }
+    let(:expense){ Expense.new("foo", 25, @account_id) }
     context "with a valid expense" do
       before do
         expense.stub(:valid?){ true }
@@ -124,7 +129,7 @@ describe Expense do
   context "#valid?" do
     let(:result){ Environment.database_connection.execute("Select name from expenses") }
     context "after fixing the errors" do
-      let(:expense){ Expense.new("123") }
+      let(:expense){ Expense.new("123", 34, @account_id) }
       it "should return true" do
         expense.valid?.should be_false
         expense.name = "Rent"
@@ -132,13 +137,13 @@ describe Expense do
       end
     end
     context "with a unique name" do
-      let(:expense){ Expense.new("Student Loans") }
+      let(:expense){ Expense.new("Student Loans", 75, @account_id) }
       it "should return true" do
         expense.valid?.should be_true
       end
     end
     context "with a invalid name" do
-      let(:expense){ Expense.new("420") }
+      let(:expense){ Expense.new("420", 20, @account_id) }
       it "should return false" do
         expense.valid?.should be_false
       end
@@ -149,9 +154,9 @@ describe Expense do
     end
     context "with a duplicate name" do
       let(:name){ "Groceries" }
-      let(:expense){ Expense.new(name) }
+      let(:expense){ Expense.new(name, 24, @account_id) }
       before do
-        Expense.new(name).save
+        Expense.new(name, 24, @account_id).save
       end
       it "should return false" do
         expense.valid?.should be_false

@@ -1,9 +1,11 @@
 class Expense
   attr_reader :errors, :id
-  attr_accessor :name
+  attr_accessor :name, :cost, :account_id
 
-  def initialize(name)
+  def initialize(name, cost, account_id)
     @name = name
+    @cost = cost
+    @account_id = account_id
   end
 
   def self.all
@@ -17,15 +19,15 @@ class Expense
     result[0][0]
   end
 
-  def self.create(name)
-    expense = Expense.new(name)
+  def self.create(name, cost, account_id)
+    expense = Expense.new(name, cost, account_id)
     expense.save
     expense
   end
 
-  def self.find_by_name(name)
-    statement = "Select * from expenses where name = ?;"
-    execute_and_instantiate(statement, name)[0]
+  def self.find_by_name(name, account_id)
+    statement = "Select * from expenses where name = ? and account_id = ?;"
+    execute_and_instantiate(statement, [name, account_id])[0]
   end
 
   def self.last
@@ -35,8 +37,8 @@ class Expense
 
   def save
     if self.valid?
-      statement = "Insert into expenses (name) values (?);"
-      Environment.database_connection.execute(statement, name)
+      statement = "Insert into expenses (name, cost, account_id) values (?,?,?);"
+      Environment.database_connection.execute(statement, [name, cost, account_id])
       @id = Environment.database_connection.execute("Select last_insert_rowid();")[0][0]
       true
     else
@@ -49,7 +51,7 @@ class Expense
     if !name.match /[a-zA-Z]/
       errors << "'#{self.name}' is not a valid expense name, as it does not include any letters."
     end
-    if Expense.find_by_name(self.name)
+    if Expense.find_by_name(self.name, self.account_id)
       @errors << "#{self.name} already exists."
     end
     @errors.empty?
@@ -61,7 +63,7 @@ class Expense
     rows = Environment.database_connection.execute(statement, bind_vars)
     results = []
     rows.each do |row|
-      expense = Expense.new(row["name"])
+      expense = Expense.new(row["name"], row["cost"], row["account_id"])
       expense.instance_variable_set(:@id, row["id"])
       results << expense
     end

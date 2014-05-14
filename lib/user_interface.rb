@@ -3,6 +3,14 @@ require 'expense'
 require 'car'
 require 'menus'
 
+def account_id
+  @account_id
+end
+
+def account_id=(str)
+  @account_id = str
+end
+
 def get_menu_selection
   puts menu
   input = gets
@@ -35,7 +43,11 @@ def create_account
   account_name = gets
   return unless account_name
   account_name.chomp!
-  account = Account.new(account_name)
+  puts "What is the #{account_name}'s monthly income?"
+  account_income = gets
+  return unless account_income
+  account_income.chomp!
+  account = Account.new(account_name, account_income)
   if account.save
     puts "#{account_name} has been added."
   else
@@ -51,6 +63,7 @@ def update_account
   account_name.chomp!
   account = Account.find_by_name(account_name)
   if account
+    @account_id = account.id
     get_update_menu_selection
   else
     puts "Account '#{account_name}' does not exit. Please try again."
@@ -94,7 +107,7 @@ def add_expense
   new_expense_cost = gets
   return unless new_expense_cost
   new_expense_cost.chomp!
-  expense = Expense.new(new_expense)
+  expense = Expense.new(new_expense, new_expense_cost, @account_id)
   if expense.save
     puts "#{new_expense} has been added"
   else
@@ -169,15 +182,15 @@ def view_account
   account_name.chomp!
   account = Account.find_by_name(account_name)
   if account
-    display_account(account_name)
+    display_account(account)
   else
-    puts "Account '#{account_name}' does not exit. Please try again."
+    puts "Account '#{account.name}' does not exit. Please try again."
     view_account
   end
 end
 
-def display_account(account_name)
-  puts "displaying #{account_name}'s account"
+def display_account(account)
+  puts "displaying #{account.name}'s account"
 end
 
 def can_i_car
@@ -202,5 +215,5 @@ def can_i_car
 end
 
 def can_i_get(car_name)
-  puts "You can afford #{car_name} congradulations!"
+  puts "You can afford #{car_name} congratulations!"
 end

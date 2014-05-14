@@ -8,16 +8,16 @@ describe Account do
       end
     end
     context "with multiple accounts in the database" do
-      let!(:foo){ Account.create("Foo") }
-      let!(:bar){ Account.create("Bar") }
-      let!(:baz){ Account.create("Baz") }
-      let!(:grille){ Account.create("Grille") }
+      let!(:foo){ Account.create("Foo", 25) }
+      let!(:bar){ Account.create("Bar", 30) }
+      let!(:baz){ Account.create("Baz", 20) }
+      let!(:grille){ Account.create("Grille", 40) }
       it "should return all of the accounts" do
-        account_attrs = Account.all.map{ |account| [account.name,account.id] }
-        account_attrs.should == [["Foo", foo.id],
-                                ["Bar", bar.id],
-                                ["Baz", baz.id],
-                                ["Grille", grille.id]]
+        account_attrs = Account.all.map{ |account| [account.name,account.income,account.id] }
+        account_attrs.should == [["Foo", 25, foo.id],
+                                ["Bar", 30, bar.id],
+                                ["Baz", 20, baz.id],
+                                ["Grille", 40, grille.id]]
       end
     end
   end
@@ -30,10 +30,10 @@ describe Account do
     end
     context "with multiple accounts in the database" do
       before do
-        Account.new("Foo").save
-        Account.new("Bar").save
-        Account.new("Baz").save
-        Account.new("Grille").save
+        Account.new("Foo", 25).save
+        Account.new("Bar", 30).save
+        Account.new("Baz", 20).save
+        Account.new("Grille", 40).save
       end
       it "should return the correct count" do
         Account.count.should == 4
@@ -48,18 +48,21 @@ describe Account do
       end
     end
     context "with account by that name in the database" do
-      let(:foo){ Account.create("Foo") }
+      let(:foo){ Account.create("Foo", 25) }
       before do
         foo
-        Account.new("Bar").save
-        Account.new("Baz").save
-        Account.new("Grille").save
+        Account.new("Bar", 30).save
+        Account.new("Baz", 20).save
+        Account.new("Grille", 40).save
       end
       it "should return the account with that name" do
         Account.find_by_name("Foo").id.should == foo.id
       end
       it "should return the account with that name" do
         Account.find_by_name("Foo").name.should == foo.name
+      end
+      it "should return the account with that income" do
+        Account.find_by_name("Foo").income.should == foo.income
       end
     end
   end
@@ -72,10 +75,10 @@ describe Account do
     end
     context "with multiple accounts in the database" do
       before do
-        Account.new("Foo").save
-        Account.new("Bar").save
-        Account.new("Baz").save
-        Account.new("Grille").save
+        Account.new("Foo", 25).save
+        Account.new("Bar", 30).save
+        Account.new("Baz", 20).save
+        Account.new("Grille", 40).save
       end
       it "should return the last one inserted" do
         Account.last.name.should == "Grille"
@@ -84,15 +87,18 @@ describe Account do
   end
 
   context "#new" do
-    let(:account){ Account.new("Bob") }
+    let(:account){ Account.new("Bob", 15) }
     it "should store the name" do
       account.name.should == "Bob"
+    end
+    it "should store the income" do
+      account.income.should == 15
     end
   end
 
   context "#save" do
     let(:result){ Environment.database_connection.execute("Select * from accounts") }
-    let(:account){ Account.new("foo") }
+    let(:account){ Account.new("foo", 25) }
     context "with a valid account" do
       before do
         account.stub(:valid?){ true }
@@ -109,6 +115,10 @@ describe Account do
         account.save
         account.id.should == result[0]["id"]
       end
+      it "should record the new income" do
+        account.save
+        account.income.should == result[0]["income"]
+      end
     end
     context "with an invalid account" do
       before do
@@ -124,21 +134,22 @@ describe Account do
   context "#valid?" do
     let(:result){ Environment.database_connection.execute("Select name from accounts") }
     context "after fixing the errors" do
-      let(:account){ Account.new("123") }
+      let(:account){ Account.new("123", 55) }
       it "should return true" do
         account.valid?.should be_false
         account.name = "Bob"
+        account.income = 55
         account.valid?.should be_true
       end
     end
     context "with a unique name" do
-      let(:account){ Account.new("Joe") }
+      let(:account){ Account.new("Joe", 35) }
       it "should return true" do
         account.valid?.should be_true
       end
     end
     context "with a invalid name" do
-      let(:account){ Account.new("420") }
+      let(:account){ Account.new("420", 18) }
       it "should return false" do
         account.valid?.should be_false
       end
@@ -149,9 +160,9 @@ describe Account do
     end
     context "with a duplicate name" do
       let(:name){ "Susan" }
-      let(:account){ Account.new(name) }
+      let(:account){ Account.new(name, 38) }
       before do
-        Account.new(name).save
+        Account.new(name, 38).save
       end
       it "should return false" do
         account.valid?.should be_false

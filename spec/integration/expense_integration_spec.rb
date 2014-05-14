@@ -2,9 +2,10 @@ require_relative '../spec_helper'
 
 describe "Adding an expense" do
   before do
-    account = Account.new("Sam")
+    account = Account.new("Sam", 25)
     account.save
-    expense = Expense.new("Rent")
+    account_id = Account.find_by_name("Sam").id
+    expense = Expense.new("Rent", 20, account_id)
     expense.save
   end
   context "adding a unique expense" do
