@@ -85,6 +85,20 @@ class Account
     avaliable_funds
   end
 
+  def self.update(account, new_income)
+    statement = "update accounts set income='#{new_income}' where id='#{account}';"
+    execute_and_instantiate(statement)
+  end
+
+  def self.delete(account)
+    account_name = account.name
+    account_id = account.id
+    statement = "Delete from expenses where account_id='#{account_id}';"
+    execute_and_instantiate(statement)
+    statement = "Delete from accounts where name='#{account_name}';"
+    execute_and_instantiate(statement)
+  end
+
   private
 
   def self.execute_and_instantiate(statement, bind_vars = [])

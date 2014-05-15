@@ -57,6 +57,12 @@ class Expense
     @errors.empty?
   end
 
+  def self.delete(expense)
+    expense_name = expense.name
+    statement = "Delete from expenses where name ='#{expense_name}';"
+    execute_and_instantiate(statement)
+  end
+
   private
 
   def self.execute_and_instantiate(statement, bind_vars = [])

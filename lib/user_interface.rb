@@ -76,6 +76,7 @@ def update_income
   new_income = gets
   return unless new_income
   new_income.chomp!
+  Account.update(@account_id, new_income)
   puts "The account income has been set to #{new_income}"
 end
 
@@ -137,7 +138,14 @@ def remove_expense
   new_expense = gets
   return unless new_expense
   new_expense.chomp!
-  puts "#{new_expense} has been removed"
+  expense = Expense.find_by_name(new_expense, @account_id)
+  if expense
+    Expense.delete(expense)
+    puts "#{new_expense} has been removed"
+  else
+    puts expense.errors
+    remove_expense
+  end
   get_remove_expense_menu
 end
 
