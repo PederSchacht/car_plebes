@@ -223,7 +223,7 @@ def can_i_car
     car_price.chomp!
     new_car = Car.new(car_name, car_price)
     if new_car.save
-      can_i_get(car_name, new_car_price, avaliable_funds)
+      can_i_get(car_name, car_price, avaliable_funds)
     else
       puts new_car.errors
       can_i_car
@@ -240,7 +240,7 @@ def can_it_be_afforded(price, avaliable_funds)
 end
 
 def can_i_get(car_name, new_car_price, avaliable_funds)
-  price = new_car_price
+  price = new_car_price.to_i
   result = can_it_be_afforded(price, avaliable_funds)
   if result == true
     if car_name.downcase.start_with?("a", "e", "i","o", "u")
